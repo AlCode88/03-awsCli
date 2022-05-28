@@ -1,1 +1,109 @@
 # awsCli
+
+### To list the instance
+- To describe isntances in the with the nice output format run
+```
+aws ec2 describe-instances --output table
+```
+- If you need the output in the special text format 
+```
+aws ec2 describe-instance --output text
+```
+- The default configuration of aws profile is located in this path
+```
+~/.aws/credentials
+```
+- The config file for aws is located in the config file
+```
+~/.aws/config
+```
+- The precedens of the command line is 
+   <br> 1. Command line options
+    <br> 2. Environment variables
+    <br> 3. CLI configuration files
+
+# How to read commands from Documentation
+```
+aws<space><typeOfService><space><help>
+```
+Example: aws ec2 describe-instance help
+
+- To look for a help what you can do is type. Will provide with the all commands
+```
+aws iam help
+```
+- You can get more specific use case after you enter your actions. Example
+: 
+```
+aws iam create-role help
+```
+
+# AWS CLI setup
+
+## AWS CLI auto completion
+- you need to configure auto completion feature in Linux
+- the most popular shell is bash shell you can check shell by running 
+```
+echo $SHELLL
+- you need to get result as /bin/bash
+```
+- Next what you can check if the aws_completer is installed
+```
+which aws_completer
+- It should be under /usr/bin/aws_completer
+```
+- Next you can configure your aws_completer based on your own needs
+```
+complete -C '/usr/bin/aws_completer' aws
+```
+
+## AWS CLI filter output on client side (query)
+- You can filter on the server side wich is more efficient than filtering on the 
+client side and much faster but if faster response time is not our consideration than we must use query option
+- query will procide more robust and detailed view ot aws services than filtering but much more slower than filter
+- There are two types of filtering 
+    1. filter
+    2. query
+
+- You can apply filters to your aws instance and filter option is only supported with describe and list commands and not available with all aws commands
+Example; 
+```
+aws ec2 describe-instances --filter Name=instance-type,Values=t2.micro
+- will list all the instance with t2.micro
+```
+
+- User query option works on the client means aws will 
+
+
+## AWS CLI dry-run option
+- Testing Permission - Dry Run option
+- Good to get an extra information about command that you would like to execute Example:
+```
+aws ec2 describe-regions --dry-run
+- An error occurred (DryRunOperation) when calling the DescribeRegions operation: Request would have succeeded, but DryRun flag is set.
+- meaning the command will succeed but the dry run option is set but you do have a permissions to run this command and good thing is you executed without actually executing
+```
+## Intro to JMESPath terminal
+
+- Helps you more efficiently visualize Json format 
+
+- To Install JamesPath terminal
+```
+sudo pip3 install jmespath-terminal -y
+```
+- How to execute jmespath-terminal: 
+```
+aws ec2 describe-regions | jpterm
+```
+- You will get  a nice visual output
+
+
+Note:
+- You can apply the same query in the cli as well Example: 
+```
+aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress[]'
+```
+- What you can do as well is to grep PublicIPAddresses as well
+```
+aws ec2 describe-instances --query 'Reservations[].Instances[]' | grep PublicIpAddress
+```
