@@ -12,7 +12,7 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip awscliv2.zip
 sudo ./aws/install
 ```
-## To update your existing CLI
+## To update your existing CLI version to latest one run
 ```
 sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
 ```
@@ -24,20 +24,23 @@ sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --u
 
 ## AWS Setup
 
-	1. AWS Access Key ID
-	2. AWS Secret Access Key
-	3. Default Region Name
-	4. Format json
-
-
-
+	1. AWS Access Key ID    ======> your Access Key ID
+	2. AWS Secret Access Key =====> your Secret Access Key ID
+	3. Default Region Name =======> us-east-1
+	4. Format json         =======> json            (that is the default format name) but you can choose the below formats
 
 ## AWS Output
 	1. JSON(default)
 	2. Text
 	3. Table
   
- 
+## AWS Role for using AWS CLI
+1. Create a role with necessary permissions
+2. Create an Instance with the specified role above
+3. Install aws cli
+4. Run `aws configure` and leave access key and secret key with empty blank
+
+[Role Based Access] (https://stackoverflow.com/questions/48087499/how-to-setup-awscli-without-setting-up-access-key-secret-access-key)
 
 ### To list the instance
 - To describe isntances in the with the nice output format run
