@@ -40,7 +40,7 @@ sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --u
 3. Install aws cli
 4. Run `aws configure` and leave access key and secret key with empty blank
 
-[Role Based Access] (https://stackoverflow.com/questions/48087499/how-to-setup-awscli-without-setting-up-access-key-secret-access-key)
+[Roles Based Access Setup](https://stackoverflow.com/questions/48087499/how-to-setup-awscli-without-setting-up-access-key-secret-access-key)
 
 ### To list the instance
 - To describe isntances in the with the nice output format run
