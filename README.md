@@ -2,21 +2,42 @@
 # AWS Cli
 
 ######################## Part 1 Configuration ################################
+## Prerequestites 
+1. You need to create a User with the necessary permissions
+2. Get the access key and secret keys (Important: Do not push your keys to gitHub and keep them in safe place)
+
+## To Install AwsCli for Mac and Linux
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+## To update your existing CLI
+```
+sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+```
+
+## To setup your Profile
+```
+ aws configure
+ ```
 
 ## AWS Setup
+
 	1. AWS Access Key ID
 	2. AWS Secret Access Key
 	3. Default Region Name
 	4. Format json
+
+
+
 
 ## AWS Output
 	1. JSON(default)
 	2. Text
 	3. Table
   
- ```
- aws configure
- ```
+ 
 
 ### To list the instance
 - To describe isntances in the with the nice output format run
@@ -55,8 +76,6 @@ aws iam help
 ```
 aws iam create-role help
 ```
-
-# AWS CLI setup
 
 ## AWS CLI auto completion
 - you need to configure auto completion feature in Linux
