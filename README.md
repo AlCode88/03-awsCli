@@ -42,6 +42,68 @@ sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --u
 
 [Roles Based Access Setup](https://stackoverflow.com/questions/48087499/how-to-setup-awscli-without-setting-up-access-key-secret-access-key)
 
+## AWS CLI auto completion
+- You need to configure auto completion feature which is available only for Unix Like OS
+- The most popular shell is bash shell you can check shell by running 
+```
+echo $SHELLL
+- you need to get result as /bin/bash
+```
+1. Next what you can check if the aws_completer is installed and find the path
+```
+which aws_completer
+- It should be under /usr/bin/aws_completer
+```
+2. Enabling of AWS AutoCompleter 
+```
+complete -C '/usr/bin/aws_completer' aws
+```
+[Docs Auto Completer](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-completion.html#cli-command-completion-linux)
+
+## Setup Multiple Profiles
+- What if you have a different account for different purpose?
+- Profiles comes handy when you want to use different IAM users permissions or differen role
+```
+aws configure --profile <anyProfileName>
+```
+- To access your profile you need to always specify your profile name
+```
+aws ec2 describe-instances --profile <yourProfileName>
+```
+- To read all the existing profiles
+```
+cat ~/.aws/config
+```
+### To set Different Region for your Profile
+- What if you want to use different region for new profile or you want to update your existing profile?
+- This command will update your existing profile with a new region or will create a new profile 
+```
+aws configure set region us-east-2 --profile <profileName>
+```
+### To get the access keys you can run the following command
+- Sometimes you want ot perform some operations or check your access Keys
+```
+aws configure get aws_access_key_id --profile <profileName>
+```
+
+[Setup Additional Profiles Documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
+
+# How to read commands from Documentation
+```
+aws<space><typeOfService><space><help>
+```
+Example: aws ec2 describe-instance help
+
+- To look for a help what you can do is type help. Will provide with the all commands
+```
+aws iam help
+```
+- You can get more specific use case after you enter your actions. Example
+: 
+```
+aws iam create-role help
+```
+
 ### To list the instance
 - To describe isntances in the with the nice output format run
 ```
@@ -64,38 +126,8 @@ aws ec2 describe-instance --output text
     <br> 2. Environment variables
     <br> 3. CLI configuration files
 
-# How to read commands from Documentation
-```
-aws<space><typeOfService><space><help>
-```
-Example: aws ec2 describe-instance help
 
-- To look for a help what you can do is type. Will provide with the all commands
-```
-aws iam help
-```
-- You can get more specific use case after you enter your actions. Example
-: 
-```
-aws iam create-role help
-```
 
-## AWS CLI auto completion
-- you need to configure auto completion feature in Linux
-- the most popular shell is bash shell you can check shell by running 
-```
-echo $SHELLL
-- you need to get result as /bin/bash
-```
-- Next what you can check if the aws_completer is installed
-```
-which aws_completer
-- It should be under /usr/bin/aws_completer
-```
-- Next you can configure your aws_completer based on your own needs
-```
-complete -C '/usr/bin/aws_completer' aws
-```
 
 ## AWS CLI filter output on client side (query)
 - You can filter on the server side wich is more efficient than filtering on the 
@@ -146,4 +178,42 @@ aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress[]
 - What you can do as well is to grep PublicIPAddresses as well
 ```
 aws ec2 describe-instances --query 'Reservations[].Instances[]' | grep PublicIpAddress
+```
+
+################## S3 Resource ###########################
+- To work with any resource in AWS 
+```
+aws<space><typeOfService><space><help>
+```
+
+- To list all you buckets run the following command
+```
+aws s3 ls
+```
+- To create a new bucket run
+```
+aws mb s3://bucketName
+```
+- To list all the files inside s3 bucket
+```
+aws s3 ls s3://bucketName
+```
+- To copy file to S3 bucket run:
+```
+aws s3 cp LocalfileName s3://bucketName
+```
+- To download files from s3 run:
+```
+aws s3 cp s3://bucketName/fileName (path or . current dirr)
+```
+- To copy all the files from local to s3 run:
+```
+aws s3 sync pathinlocal s3://bucketName
+
+Example: aws s3 sync . s3://test-talant-bucket
+
+```
+- To copy files to Storage classes
+```
+aws s3 sync . s3://bucketName/path --storage-class STANDARD_IA
 ```
