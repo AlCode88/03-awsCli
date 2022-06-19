@@ -1,0 +1,36 @@
+{
+ "Parts": [
+        {
+            "PartNumber": 1,
+            "ETag": "\"68475ba5402f8d10b5f023123d1d3aed\""
+        },
+        {
+            "PartNumber": 2,
+            "ETag": "\"2d6ff177048e5d54cb667b239acc45d3\""
+        },
+        {
+            "PartNumber": 3,
+            "ETag": "\"aad2b0f6aa7e75ff1bee7dcdf71c0a24\""
+        },
+        {
+            "PartNumber": 4,
+            "ETag": "\"f4730547f453ea13f184918946a7f7bf\""
+        },
+        {
+            "PartNumber": 5,
+            "ETag": "\"a9f7e32b51ba75fd12e39ec08535c68b\""
+        },
+        {
+            "PartNumber": 6,
+            "ETag": "\"049ff1b5eecfb483f49890c1c74d8fbf\""
+        },
+        {
+            "PartNumber": 7,
+            "ETag": "\"b4c4ed7b14e64d3af3d3153e71bb1555\""
+        },
+        {
+            "PartNumber": 8,
+            "ETag": "\"47742569fbb7a0654c66a2d51e826a4d\""
+        }
+    ]
+}
