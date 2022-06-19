@@ -327,7 +327,7 @@ aws s3api put-bucket-encryption --bucket new-talant-bucket --server-side-encrypt
 1. Locate the file that needs to be uploaded
 2. run `split -b 10M fileName` command
 3. If you list the content of the folder, you should get chunked fiels like `xaa  xab  xac  xad  xae  xaf  xag  xah` and each files is in the size of that you have specified
-4. Initiate Multipart Upload `aws s3api create-multipart-upload --bucket NameOftheBucket --key video.mp4(can be any name for the key) and you should get response with Bucket: , UploadId(Make a note), Key:
+4. Initiate Multipart Upload `aws s3api create-multipart-upload --bucket NameOftheBucket --key video.mp4`(can be any name for the key) and you should get response with Bucket: , UploadId(Make a note), Key:
 5. Upload your parts
 ```
 aws s3api upload-part --bucket YourBucketName --key vide.mp4 --part-number 1(needsToBeModifiedWithFile#) --body xaa --upload-id a3LonUf_grTvPPzHAr5Yqn5nln.8z1Tsf46KEkCGii5Y6z18iF.xYJEVwCBFybdjUMZ9SL92FZ_Wn.oH0n.G45.0BKft5uzRQcq9icjMvHO9Tb6yLBuVZ59vhtN5v6nR(yourUniqueUploadID)
