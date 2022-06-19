@@ -324,3 +324,59 @@ aws s3api put-bucket-encryption --bucket new-talant-bucket --server-side-encrypt
 [Link to Encryption Doc](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-encryption.html)
 
 ## Multipart upload
+1. Locate the file that needs to be uploaded
+2. run `split -b 10M fileName` command
+3. If you list the content of the folder, you should get chunked fiels like `xaa  xab  xac  xad  xae  xaf  xag  xah` and each files is in the size of that you have specified
+4. Initiate Multipart Upload `aws s3api create-multipart-upload --bucket NameOftheBucket --key video.mp4(can be any name for the key) and you should get response with Bucket: , UploadId(Make a note), Key:
+5. Upload your parts
+```
+aws s3api upload-part --bucket YourBucketName --key vide.mp4 --part-number 1(needsToBeModifiedWithFile#) --body xaa --upload-id a3LonUf_grTvPPzHAr5Yqn5nln.8z1Tsf46KEkCGii5Y6z18iF.xYJEVwCBFybdjUMZ9SL92FZ_Wn.oH0n.G45.0BKft5uzRQcq9icjMvHO9Tb6yLBuVZ59vhtN5v6nR(yourUniqueUploadID)
+```
+7. You can list the files with the following command
+```
+aws s3api list-parts --bucket yourBucketName --key yourKey --upload-id yourUniqueUploadId
+```
+8. To complete the multipart upload you need to creaete a json file with Etag and PartNumber
+```
+{
+ "Parts": [
+        {
+            "PartNumber": 1,
+            "ETag": "\"68475ba5402f8d10b5f023123d1d3aed\""
+        },
+        {
+            "PartNumber": 2,
+            "ETag": "\"2d6ff177048e5d54cb667b239acc45d3\""
+        },
+        {
+            "PartNumber": 3,
+            "ETag": "\"aad2b0f6aa7e75ff1bee7dcdf71c0a24\""
+        },
+        {
+            "PartNumber": 4,
+            "ETag": "\"f4730547f453ea13f184918946a7f7bf\""
+        },
+        {
+            "PartNumber": 5,
+            "ETag": "\"a9f7e32b51ba75fd12e39ec08535c68b\""
+        },
+        {
+            "PartNumber": 6,
+            "ETag": "\"049ff1b5eecfb483f49890c1c74d8fbf\""
+        },
+        {
+            "PartNumber": 7,
+            "ETag": "\"b4c4ed7b14e64d3af3d3153e71bb1555\""
+        },
+        {
+            "PartNumber": 8,
+            "ETag": "\"47742569fbb7a0654c66a2d51e826a4d\""
+        }
+    ]
+}
+```
+9. You need to run finall command 
+```
+aws s3api complete-multipart-upload --multipart-upload file://JsonFileName.json --bucket BucketName --key YourUniqueKeyId upload-id yourUniqueUploadId
+```
+10. Note: The upload Id will be deleted after completion
