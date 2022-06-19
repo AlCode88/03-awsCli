@@ -16,6 +16,10 @@ sudo ./aws/install
 ```
 sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
 ```
+## To upgrade your aws cli run:
+```
+sudo pip install awscli --upgrade
+```
 
 ## To setup your Profile
 ```
@@ -180,7 +184,7 @@ aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress[]
 aws ec2 describe-instances --query 'Reservations[].Instances[]' | grep PublicIpAddress
 ```
 
-################## S3 Resource ###########################
+################## S3 Resource ####################################
 - To work with any resource in AWS 
 ```
 aws<space><typeOfService><space><help>
@@ -216,4 +220,102 @@ Example: aws s3 sync . s3://test-talant-bucket
 - To copy files to Storage classes
 ```
 aws s3 sync . s3://bucketName/path --storage-class STANDARD_IA
+```
+- To exclude some files from copying you can run:
+```
+aws s3 sync . s3://bucketName/path --storage-class STANDARD_IA --exclude '*.sh' --acl public-read
+```
+### Encryption of files using Default Encryption
+- Encrypt file with SSE-S3 you can specify --sse option
+	- Amazon manages the Master key 
+	- We do not have a choice to choose a Master key
+```
+aws s3 cp Documents/file3.txt s3://test-talant-bucket --sse AES256
+```
+
+### Encryption of files using KMS service
+- To Encrypt S3 bucket files with kms keys run:
+```
+aws s3 cp Documents/file3.txt s3://test-talant-bucket --sse aws:kms --sse-kms-key-id PasteYourKMSKeyId
+```
+
+### Create a KMS keys
+- NOTE: Each key will cost you dollar per month
+- You can not use different keys from different services no corss key usages
+
+- To create a kms keys run: 
+```
+aws kms create-key --tags TagKey=Name,TagValue=awsCliTest --description "This is kms test keys"
+
+if you run aws kms-list it will be hard to read the file for you, you can create Aliases instead
+```
+- To creae an Alias you can run  the following command
+```
+aws kms create-alias --alias-name alias/YourKeyName --target-key-id 5a0cbb42-90f2-40e1-b8b6-5f914e9b7507(KeyId)
+```
+- To list aliases run:
+```
+aws kms list-aliases          =====> our example alias alias/awscli-test
+```
+- To list all aliases with KMS key Id run:
+```
+aws kms list-aliases | grep 'awscli-test \| TargetKeyId'
+```
+### SSE-C You 
+- You can not create server side encryption with console nor read it
+- The key provider should not be base64 encoded
+- We will use options `--sse c` and `--sse c key`
+
+- To generate your own keys you can use Open SSL software and run to generate 128 bit keys we need a key part: 
+```
+openssl enc -aes-128-cbc -k secret -P
+```
+- To encrypt file with your own custom keys you run:
+```
+aws s3 cp Documents/file3.txt s3://test-talant-bucket --sse-c --sse-c-key generatedKey
+```
+- To download the file from S3 bucket you need to provide your custom keys otherwise you will get an error
+```
+aws s3 cp s3://test-talant-bucket/file3.txt .
+fatal error: An error occurred (400) when calling the HeadObject operation: Bad Request
+
+Run this command:
+aws s3 cp s3://test-talant-bucket/file3.txt (path) --sse-c --sse-c-key generatedKeyName
+```
+### Encryp the whole S3 Bucket
+#### KMS
+- To Encrypt whole bucket with kms keys you have to specify json policy document first
+- Create a .json file with your account id and kms key id
+```
+{
+    "Rules": [
+      {
+        "ApplyServerSideEncryptionByDefault": {
+          "SSEAlgorithm": "aws:kms",
+          "KMSMasterKeyID": "arn:aws:kms:us-east-1:PutYourAWSAccountId:key/yourKMSKeyId"
+        }
+      }
+    ]
+  }
+```
+- To Encrypt whole bucket with the kms key run:
+```
+aws s3api put-bucket-encryption --bucket --bucket new-talant-bucket --server-side-encryption-configuration file://s3/bucket.json
+```
+
+#### AES256 S3 default encryption
+- Create a file with .json document with the following json document
+```
+{
+  "Rules": [
+    {
+      "ApplyServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+      }
+    }
+
+  ]
+}
+```
+- Run the following command 
 ```

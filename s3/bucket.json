@@ -1,0 +1,10 @@
+{
+    "Rules": [
+      {
+        "ApplyServerSideEncryptionByDefault": {
+          "SSEAlgorithm": "aws:kms",
+          "KMSMasterKeyID": "arn:aws:kms:us-east-1:775359975843:key/5a0cbb42-90f2-40e1-b8b6-5f914e9b7507"
+        }
+      }
+    ]
+  }
