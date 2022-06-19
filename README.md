@@ -183,7 +183,7 @@ aws ec2 describe-instances --query 'Reservations[].Instances[].PublicIpAddress[]
 ```
 aws ec2 describe-instances --query 'Reservations[].Instances[]' | grep PublicIpAddress
 ```
-
+# S3 Bucket
 ################## S3 Resource ####################################
 - To work with any resource in AWS 
 ```
@@ -319,3 +319,8 @@ aws s3api put-bucket-encryption --bucket --bucket new-talant-bucket --server-sid
 ```
 - Run the following command 
 ```
+aws s3api put-bucket-encryption --bucket new-talant-bucket --server-side-encryption-configuration file://s3/aes256.json
+```
+[Link to Encryption Doc](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-encryption.html)
+
+## Multipart upload
