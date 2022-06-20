@@ -108,15 +108,8 @@ aws iam help
 aws iam create-role help
 ```
 
-### To list the instance
-- To describe isntances in the with the nice output format run
-```
-aws ec2 describe-instances --output table
-```
-- If you need the output in the special text format 
-```
-aws ec2 describe-instance --output text
-```
+# AWS Configuration Location
+
 - The default configuration of aws profile is located in this path
 ```
 ~/.aws/credentials
@@ -125,15 +118,12 @@ aws ec2 describe-instance --output text
 ```
 ~/.aws/config
 ```
-- The precedens of the command line is 
-   <br> 1. Command line options
-    <br> 2. Environment variables
-    <br> 3. CLI configuration files
+ ### The precedens of the command line is 
+  <br> 1. Command line options
+  <br> 2. Environment variables
+  <br> 3. CLI configuration files
 
-
-
-
-## AWS CLI filter output on client side (query)
+ ## AWS CLI filter output on client side (query)
 - You can filter on the server side wich is more efficient than filtering on the 
 client side and much faster but if faster response time is not our consideration than we must use query option
 - query will procide more robust and detailed view ot aws services than filtering but much more slower than filter
@@ -147,9 +137,6 @@ Example;
 aws ec2 describe-instances --filter Name=instance-type,Values=t2.micro
 - will list all the instance with t2.micro
 ```
-
-- User query option works on the client means aws will 
-
 
 ## AWS CLI dry-run option
 - Testing Permission - Dry Run option
@@ -324,6 +311,12 @@ aws s3api put-bucket-encryption --bucket new-talant-bucket --server-side-encrypt
 [Link to Encryption Doc](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-encryption.html)
 
 ## Multipart upload
+#### Steps
+- Break the files into many pieces
+- Initiate Multipart Upload
+- Upload individual parts
+- Complete Multipar uploads
+
 1. Locate the file that needs to be uploaded
 2. run `split -b 10M fileName` command
 3. If you list the content of the folder, you should get chunked fiels like `xaa  xab  xac  xad  xae  xaf  xag  xah` and each files is in the size of that you have specified
@@ -379,4 +372,91 @@ aws s3api list-parts --bucket yourBucketName --key yourKey --upload-id yourUniqu
 ```
 aws s3api complete-multipart-upload --multipart-upload file://JsonFileName.json --bucket BucketName --key YourUniqueKeyId upload-id yourUniqueUploadId
 ```
-10. Note: The upload Id will be deleted after completion
+10. Note: The upload Id will be deleted after completion Sometimes it is easiear to achieve this with command line interface
+
+## Cross Account S3 Bucket access using bucket policy and aws cli
+### Prerequesites
+1. We need two accounts Account A and Account B
+2. Create S3 bucket in AccountA and add some items
+3. In the Account A enter this policy in the bucket policy section. Principal part will determine who will be accessing this files. So you need to type another account id in the AnotherAccountId
+```
+{
+    "Version":"2012-10-17",
+    "Statement":[
+        {
+            "Sid":"CrossAccountPermission",
+            "Effect":"Allow",
+            "Principal":{
+                "AWS":"arn:aws:iam::AccountBAWSAccountID:root"      #GetAccountB Account Id
+            },
+            "Action":"s3:*",                                    #MeansYouCanPerformAnyActionsOnS3
+            "Resource":[
+                "arn:aws::s3:::AccountABucketName",               #PathToBucket
+                "arn:aws::s3:::AccountABucketName/*"
+            ]
+        }
+    ]
+}
+```
+4. Now from AccountB try to list the buckets in AccountA
+```
+aws s3 ls s3://AccountABucketName
+```
+5. You can copy file from accountA bucket to your accountB 
+``` 
+aws s3 cp s3://AccountABucketName/fileName.jpg ~/Downloads/
+```
+6. You can add multiple statements in your bucket policy. Like this one you can list but can not download the file. You should get permission denied 403 error
+```
+{
+    "Version":"2012-10-17",
+    "Statement":[
+        {
+            "Sid":"CrossAccountPermission",
+            "Effect":"Allow",
+            "Principal":{
+                "AWS":"arn:aws:iam::YourAccountId:root"
+            },
+            "Action":"s3:*",
+            "Resource":[
+                "arn:aws::s3:::NameOfyourBucket",
+                "arn:aws::s3:::NameOfyourBucket/*"
+            ]
+        },
+        {
+            "Sid":"DenyPermission",
+            "Effect":"Deny",
+            "Principal":{
+                "AWS":"arn:aws:iam::YourAccountId:root"
+            },
+            "Action":"s3:GetObject",                              #Do not allow to Download staff
+            "Resource":"arn:aws::s3:::NameOfyourBucket/*"
+        }
+    ]
+}
+```
+## Generate Pre-Signed URL with aws Cli
+- Will allow anyone to recieve pre-signed url to retrieve the object.
+- The default Valid URL is 3600s (1hr)
+- To generate pre-signed url run:
+```
+aws s3 presign s3://YouBucketname/objectName.txt
+```
+- To set the expiration time for Pre-signed URL use `--expires-in` flag:
+```
+aws s3 presign s3://YouBucketname/objectName.txt --expires-in 30
+```
+
+# EC2 
+####################################### EC2 Resource ############################################ 
+## To list the instance
+- To describe isntances in the with the nice output format run
+```
+aws ec2 describe-instances --output table
+```
+- If you need the output in the special text format 
+```
+aws ec2 describe-instance --output text
+```
+- 
+

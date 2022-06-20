@@ -1,0 +1,26 @@
+{
+    "Version":"2012-10-17",
+    "Statement":[
+        {
+            "Sid":"CrossAccountPermission",
+            "Effect":"Allow",
+            "Principal":{
+                "AWS":"arn:aws:iam::YourAccountId:root"
+            },
+            "Action":"s3:*",
+            "Resource":[
+                "arn:aws::s3:::NameOfyourBucket",
+                "arn:aws::s3:::NameOfyourBucket/*"
+            ]
+        },
+        {
+            "Sid":"DenyPermission",
+            "Effect":"Deny",
+            "Principal":{
+                "AWS":"arn:aws:iam::YourAccountId:root"
+            },
+            "Action":"s3:GetObject",
+            "Resource":"arn:aws::s3:::NameOfyourBucket/*"
+        }
+    ]
+}
