@@ -160,7 +160,7 @@ aws ec2 describe-instances --query "Reservations[*].Instances[*].{InstanceIds:In
 ```
 
 
-## AWS CLI dry-run option
+# AWS CLI dry-run option
 - Testing Permission - Dry Run option
 - Good to get an extra information about command that you would like to execute Example:
 ```
