@@ -123,7 +123,8 @@ aws iam create-role help
   <br> 2. Environment variables
   <br> 3. CLI configuration files
 
- ## AWS CLI filter output on client side (query)
+# AWS CLI filter output on client side (query) with query
+
 - You can filter on the server side wich is more efficient than filtering on the 
 client side and much faster but if faster response time is not our consideration than we must use query option
 - query will procide more robust and detailed view ot aws services than filtering but much more slower than filter
@@ -137,6 +138,27 @@ Example;
 aws ec2 describe-instances --filter Name=instance-type,Values=t2.micro
 - will list all the instance with t2.micro
 ```
+- To Describe instances run:
+```
+aws ec2 describe-instances --query "Reservations[*].Instances[*].{Instances:InstanceId,AvailabilityZone:Placement.AvailabilityZone,PubIP:PublicIpAddress,SubnetIds:SubnetId,VpcIds:VpcId,InstanceType:InstanceType}" --output table
+```
+- This command lists all the instances information based on your needs
+```
+aws ec2 describe-instances --query "Reservations[*].Instances[*].{InstanceId:InstanceId,AvailabilityZone:Placement.AvailabilityZone,PubIP:PublicIpAddress,SubnetIds:SubnetId,VpcIds:VpcId,InstanceType:InstanceType,EC2Name:Tags[?Key=='Name']|[0].Value}" --output table
+```
+- To Describe Security Groups Run
+```
+aws ec2 describe-security-groups --query "SecurityGroups[*].{SGName:GroupName,SGId:GroupId}" --out,SGId:GroupId}" --output table
+```
+- To describe ec2 instance 
+```
+aws ec2 describe-instances --filters Name=tag-key,Values=Name --query "Reservations[*].Instances[*].{Instance:InstanceId,AZ:Placement.AvailabilityZone,Name:Tags[?Key=='Name']|[0].Value}" --output table
+```
+- To List all isntance Names and Instances Ids run
+```
+aws ec2 describe-instances --query "Reservations[*].Instances[*].{InstanceIds:InstanceId,Name:Tags[?Key=='Name']|[0].Value}" --output table
+```
+
 
 ## AWS CLI dry-run option
 - Testing Permission - Dry Run option
