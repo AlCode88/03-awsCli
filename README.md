@@ -148,15 +148,19 @@ aws ec2 describe-instances --query "Reservations[*].Instances[*].{InstanceId:Ins
 ```
 - To Describe Security Groups Run
 ```
-aws ec2 describe-security-groups --query "SecurityGroups[*].{SGName:GroupName,SGId:GroupId}" --out,SGId:GroupId}" --output table
+aws ec2 describe-security-groups --query "SecurityGroups[*].{SGName:GroupName,SGId:GroupId}" --output table
 ```
 - To describe ec2 instance 
 ```
 aws ec2 describe-instances --filters Name=tag-key,Values=Name --query "Reservations[*].Instances[*].{Instance:InstanceId,AZ:Placement.AvailabilityZone,Name:Tags[?Key=='Name']|[0].Value}" --output table
+
+aws ec2 describe-instances --filters 
 ```
 - To List all isntance Names and Instances Ids run
 ```
 aws ec2 describe-instances --query "Reservations[*].Instances[*].{InstanceIds:InstanceId,Name:Tags[?Key=='Name']|[0].Value}" --output table
+
+aws ec2 describe-instances --query "Reservations[*].Instances[*].{InstanceIds:InstanceId,KeyName:KeyName,AMI:ImageId,SG:SecurityGroups[1],Name:Tags[?Key=='Name']|[0].Value}" --query "SecurityGroups[*].{SGName:GroupName,SGId:GroupId}" --output table
 ```
 
 
@@ -472,6 +476,10 @@ aws s3 presign s3://YouBucketname/objectName.txt --expires-in 30
 # EC2 
 ####################################### EC2 Resource ############################################ 
 ## To list the instance
+- List Ubuntu images
+```
+aws ec2 describe-images --filters 'Name=name,Values=*Ubuntu*' --query 'Images[*].[ImageId , Description]'
+```
 - To describe isntances in the with the nice output format run
 ```
 aws ec2 describe-instances --output table
@@ -480,5 +488,160 @@ aws ec2 describe-instances --output table
 ```
 aws ec2 describe-instance --output text
 ```
+- To create a key pair and output that file to pem file run:
+```
+aws ec2 create-key-pair --key-name YourKeyName --query 'KeyMaterial' --output text > myKey.pem
+
+Make sure to run: chmod 400 YourKeyName file
+```
+- Create an instance run:
+```
+aws ec2 run-instances --image-id ami-Id --instance-type t2.micro --key-name yourKeyName
+```
+- Create an instance with Security group and specific subnet
+```
+aws ec2 run-instances --image-id ami-8c1be5f6 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-beb3eacc --subnet-id subnet-ed36c3c2
+```
+- To modify Security Groups
+```
+aws ec2 authorize-security-group-ingress --group-id sg-814134f2 --protocol tcp --port 22 --cidr 0.0.0.0/0
+```
+- Terminate Multiple instance at once
+```
+aws ec2 terminate-instances --instance-ids i-0b20d7680fa0e6ba0  i-00251da28fa34ffd1
+```
+- To create a snapshot
+```
+aws ec2 create-snapshot --volume-id vol-1234567890abcdef0 --description "This is my root volume snapshot."                =====> Have your Root volume id
+```
+- This example command creates an 10 GiB General Purpose (SSD) volume in the Availability Zone us-east-1a
+```
+aws ec2 create-volume --size 10 --region us-east-1 --availability-zone us-east-1a --volume-type gp2
+```
+- To attach volume to instance
+```
+aws ec2 attach-volume --volume-id vol-1234567890abcdef0 --instance-id i-01474ef662b89480 --device /dev/sdf
+```
+- To detach volume from instance
+```
+aws ec2 detach-volume --volume-id vol-1234567890abcdef0
+```
 - 
+
+# VPC
+############################ VPC ###################################################
+- To create VPC
+```
+aws ec2 create-vpc --cidr-block 10.0.0.0/16
+```
+- Tag VPC
+```
+aws ec2 create-tags --resources yourVPCid --tags Key=Name,Value=YourVpcName
+```
+- To Create a public Subnet
+```
+aws ec2 create-subnet --vpc-id vpc-d363afab --cidr-block 10.0.1.0/24
+```
+- Tag the public subnet
+```
+aws ec2 create-tags --resources subnet-7314ad17 --tags Key=Name,Value=CLI-Public-Subnet
+```
+- Create a private Subnet
+```
+aws ec2 create-subnet --vpc-id vpc-d363afab --cidr-block 10.0.2.0/24
+```
+- Tag the private subnet 
+```
+aws ec2 create-tags --resources subnet-4109b025 --tags Key=Name,Value=CLI-Private-Subnet
+```
+- Create Internet Gateway
+```
+aws ec2 create-internet-gateway=
+```
+- Tag Internet Gateway
+```
+aws ec2 create-tags --resources igw-afdd01d6 --tags Key=Name,Value=CLI-Internet-Gateway
+```
+- Attach Internet Gateway
+```
+aws ec2 attach-internet-gateway --internet-gateway-id igw-5d685a38 --vpc-id vpc-d363afab
+```
+- Allocate Elastic IP
+```
+aws ec2 allocate-address --domain vpc
+```
+- Create Nat Gateway
+```
+aws ec2 create-nat-gateway --subnet-id subnet-1a2b3c4d --allocation-id eipalloc-37fc1a52
+#
+Tag
+#
+aws ec2 create-tags --resources nat-0e4d97e539eadf232 --tags Key=Name,Value=CLI-Nat-Gateway
+```
+- Create Route Table 1 for Public Subnet
+```
+aws ec2 create-route-table --vpc-id vpc-d363afab 
+#
+Tag
+#
+aws ec2 create-tags --resources rtb-14c3736e --tags Key=Name,Value=CLI-PUBLIC_RT
+```
+- Create Route Table 2 for Private Subnets:
+```
+aws ec2 create-route-table --vpc-id vpc-d363afab 
+
+#Tag:
+
+aws ec2 create-tags --resources rtb-cbc070b1 --tags Key=Name,Value=CLI-PRIVATE_RT
+```
+- Create Route Table Internet in Route Table 1: 
+```
+aws ec2 create-route --route-table-id rtb-14c3736e --destination-cidr-block 0.0.0.0/0 --gateway-id igw-afdd01d6
+```
+- Create Route table to internet via Nat
+```
+aws ec2 create-route --route-table-id rtb-cbc070b1 --destination-cidr-block 0.0.0.0/0 -- gateway-id nat-0e4d97e539eadf232
+```
+- Associate Route Table 1 to PublicSubnet:
+```
+aws ec2 associate-route-table --route-table-id rtb-14c3736e --subnet-id subnet-7314ad17
+```
+- Associate Route Table with Private Subnet
+```
+aws ec2 associate-route-table --route-table-id rtb-1245623e --subnet-id subnet-234567as
+```
+- Create Security Group inside your cusotm VPC
+```
+aws	ec2	create-security-group --group-name CLI-WEB-SecurityGroup --description	"Mysecurity group" --vpc-id vpc-d363afab
+#
+Tag:
+#
+aws ec2 create-tags --resources sg-03ca1371 --tags Key=Name,Value=CLI_SECURITY_GROUP
+
+Add Ingress Port 22 and 80:
+```
+- Create a key pair 
+```
+aws ec2 create-key-pair --key-name MyKeyPairCLI
+```
+- Give proper permission to your keys chmod 400
+```
+chmod 400 MyKeyPairCli.pem
+```
+- Create Instance with AMI in vpc
+```
+aws ec2 run-instances --image-id ami-8c1be5f6 --count 1 --instance-type t2.micro --key- name MyKeyPairCLI --security-group-ids sg-c3ed34b1 --subnet-id subnet-7314ad17 --associate-public-ip-address
+```
+- Tag your Isntance
+```
+aws ec2 create-tags --resources i-05c8b15394d0905b8 --tags Key=Name,Value=CLI_EC2
+```
+- Describe instance to Get Pub ip 
+```
+aws ec2 describe-instances
+```
+- ssh to your Created Instance
+```
+ssh ec2-user@pubip -i MyKeyPair.pem
+```
 
