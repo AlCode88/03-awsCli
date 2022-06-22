@@ -645,3 +645,140 @@ aws ec2 describe-instances
 ssh ec2-user@pubip -i MyKeyPair.pem
 ```
 
+# Lambda Function with AWS Cli
+################################################# Lambda Function ##################################################################
+
+- Lambda Function is one of the greatest and mostly used services in aws
+- To run our Lambda function we need to create a role for our Lambda with the name lambdaRole.json:
+```
+{
+    "Version":"2012-10-17",
+    "Statement": {
+        "Effect":"Allow",
+        "Principal":{"Service":"lambda.amazonaws.com"},
+        "Action":"sts:AssumeRole"
+    }
+}
+```
+- To create a role run the following aws command: 
+```
+aws iam create-role --role-name lambda-test-role --assume-role-policy-document file://lambda/lambdaRole.json
+```
+- To list created role you can run
+```
+aws iam list-roles
+```
+- To list policies you need to run:
+```
+aws iam list-policies | grep EC2Full
+
+or
+
+aws iam list-policies | grep S3Read
+```
+- To attach role to lambda function run:
+```
+aws iam attach-role-policy --role-name lambdaTest --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+```
+- Now we need to create a zip file for our code:
+```
+zip -r zipFileName fileName.py
+```
+- Create a function
+```
+aws lambda create-function --function-name lambdaTest --runtime python3.7 --role arn:aws:iam::775359975843:role/lambdaTest --handler lambda.lambda_handler --zip-file fileb://lambda/lambdatest.zip
+```
+- To invoke Lambda function run:
+```
+aws lambda invoke --invocation-type Event --function-name lambdaTest output.txt
+```
+
+
+# IAM
+############################################### IAM ##################################################################
+- To creare an IAM user
+```
+aws iam create-user --user-name testUser
+```
+- To create an access key for specific user
+```
+aws iam create-access-key --user-name testUser
+```
+- You can configure new user with different profile
+```
+aws configure --profile testProfile
+```
+- To perform some kind of action with newly created profile
+```
+aws s3 ls --profile testProfile
+```
+- To list available policies run:
+```
+aws iam list-policies | grep AdministratorAccess
+
+ aws iam list-policies | grep S3Full
+```
+- In order your user to have some permissions you need to attach a policy:
+```
+aws iam attach-user-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --user-name testUser
+```
+- To test it now you can run the cli command with --profile:
+```
+aws s3 ls --profile testProfile
+```
+- To delete the user you need to detach policy first: 
+```
+aws iam detach-user-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --user-name testUser
+```
+- You need to get access keys first to delete user:
+```
+aws configure get aws_access_key_id --profile testProfile
+```
+- Now we can delete user
+```
+aws iam delete-access-key --user-name testUser --access-key-id yourAccessKey                         # Delete your profiles Access Key Ids
+```
+- To delete user run:
+```
+aws iam delete-user --user-name testUser
+```
+- To confirm that user has been deleted run:
+```
+aws iam list-users
+```
+
+# Create a role EC2 with Instance Profile
+########################################### Instance profile ######################################################################################################
+
+
+- To attach a role to your Instance you need to create an Instance Profile. Create a json document Example profile.json. So EC2 will perform Actions on your behalf:
+```
+{
+    "Version":"2012-10-17",
+    "Statement": {
+        "Effect":"Allow",
+        "Principal":{"Service":"ec2.amazonaws.com"},
+        "Action":"sts:AssumeRole"
+    }
+}
+```
+- To create a role with existing json trust policy run:
+```
+aws iam create-role --role-name ec2_S3_access --assume-role-policy-document file://1_EC2/assumeRole.json
+```
+- To list all available policies you can run:
+```
+aws iam attach-role-policy --role-name ec2_S3_access --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+```
+- Create an	Instance Profile required to contain the role:
+```
+aws iam create-instance-profile --instance-profile-name EC2-EC2-full-access
+```
+- Attach the role to the instance profile run:
+```
+aws iam add-role-to-instance-profile --instance-profile-name EC2-EC2-full-access --role-name EC2AdminCli
+```
+- Launch EC2 instance with the role:
+```
+aws ec2 run-instances --image-id ami-6057e21a --instance-type t2.micro --iam-instance-profile Name=EC2-EC2-full-access
+```
