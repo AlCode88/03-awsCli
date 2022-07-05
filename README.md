@@ -782,3 +782,62 @@ aws iam add-role-to-instance-profile --instance-profile-name EC2-EC2-full-access
 ```
 aws ec2 run-instances --image-id ami-6057e21a --instance-type t2.micro --iam-instance-profile Name=EC2-EC2-full-access
 ```
+
+################################################ AWS CLOUDFORMATION ##############################################################
+# AWS CloudFormation
+###
+- CF is a service that gives developers and buisnesses an easy way to create a collection of related AWS resources and provision them in an orderly and predictable fashion
+
+### What new concepts does AWS CloudFormation introduce?
+- AWS CF introduce two conecpts:
+    1. Template - a JSON or YAML-format, text-based file that describes all the AWS resources you need to deploy to run you application.
+    2. Stack - the set of AWS resources that are created and managed as a single unit when AWS CF instantiates template
+
+- If all resources is not created properly a **rollback** occurs and all the resources are deleted
+- If a succesful stack is deleted, all resources are deleted
+
+- We have defined our vpc.yml file in local path
+```
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A sample template
+Parameters:
+  Cidr:
+    Description: Specify CIDR Range
+    Type: String
+    Default: 10.0.0.0/16             #You can test it without setting default cidr and by specifyig cidr in parameter example
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref Cidr
+      EnableDnsSupport: true
+```
+
+- To deploy CF from your local machine run: 
+```
+aws cloudformation create-stack --stack-name teststack --template-body file://vpc.yml
+```
+- To describe stacks 
+```
+aws cloudformation describe-stacks
+```
+- To deploy stack with specifying parameters run:
+```
+aws cloudformation create-stack --stack-name teststack-param-stack --template-body file://vpc_params.yml --parameters ParameterKey=Cidr,ParameterValue=10.0.0.0/16
+```
+- To upload your file from S3 run:
+```
+aws cloudformation deploy --stack-name testStack --template-file vpc.yml --s3-bucket cloudformation-test-talant-oreally
+```
+- To delete stack run: 
+```
+aws cloudformation delete-stack --stack-name testStack
+```
+- To update your stack run:
+```
+aws cloudformation update-stack --stack-name teststack-param-stack --templatbody file://vpc_params.yml --parameters ParameterKey=cidr,ParameterValue=10.0.0.0/16
+```
+- To delete stack run: 
+```
+aws cloudformation delete-stack --stack-name teststack
+```
